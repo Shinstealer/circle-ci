@@ -13,9 +13,6 @@ jobs:
           key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: v1-gradle-cache-{{ checksum "build.gradle" }}
-      - run:
-          name: Install dependencies
-          command: ./gradlew build -x test
       - save_cache:
           paths:
             - ~/.gradle/wrapper
@@ -27,8 +24,9 @@ jobs:
       - run:
           name: chmod permissions
           command: sudo chmod +x ./gradlew
-      - run: ./gradlew clean build
-      
+          
+      - run: ./gradlew build
+
       - persist_to_workspace:
           root: .
           paths:
