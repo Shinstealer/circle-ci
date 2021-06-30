@@ -24,6 +24,11 @@ jobs:
           paths:
             - ~/.gradle/caches
           key: v1-gradle-cache-{{ checksum "build.gradle" }}
+      - run:
+          name: chmod permissions
+          command: sudo chmod +x ./gradlew
+      - run: ./gradlew clean build
+      
       - persist_to_workspace:
           root: .
           paths:
