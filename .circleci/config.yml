@@ -23,10 +23,11 @@ jobs:
       - restore_cache:
           key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
-          key: v1-gradle-cache-{{ checksum "build.gradle" }}
-      - run:
-          name: Install dependencies
-          command: ./gradlew build -x test
+          keys: 
+            - v1-dependencies-{{ checksum "build.gradle" }}
+            - v1-dependencies-
+      - run: gradle dependencies
+          
       - save_cache:
           paths:
             - ~/.gradle/wrapper
@@ -35,13 +36,17 @@ jobs:
           paths:
             - ~/.gradle/caches
           key: v1-gradle-cache-{{ checksum "build.gradle" }}
+      - run:
+          name: chmod permissions
+          command: sudo chmod +x ./gradlew
+      - run: ./gradlew build
       - persist_to_workspace:
           root: .
           paths:
             - build
   test:
     docker:
-      - image: circleci/openjdk:11-jdk
+      - image: circleci/openjdk:11.0.3-jdk-stretch
 
     working_directory: ~/repo
     environment:
