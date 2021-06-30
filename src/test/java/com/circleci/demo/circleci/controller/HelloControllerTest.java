@@ -9,10 +9,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,10 +30,28 @@ public class HelloControllerTest {
   }
 
   @Test
-  void helloTest() throws Exception {
-    final var mvcResult =
-        this.mockMvc.perform(get("/hello")).andDo(print()).andExpect(status().isOk()).andReturn();
-    String content = mvcResult.getResponse().getContentAsString();
-    assertEquals(content, "hello circleCI");
+	public void testRoot() throws Exception {
+    String PAGE_403 = "403";
+		// リクエスト呼び出して、結果を判定
+		mockMvc.perform(get("/"))
+			.andExpect(status().isOk())
+			.andExpect(view().name(PAGE_403))
+			.andReturn();
+	}
+
+  @Test
+  public void testMainPage() throws Exception {
+        this.mockMvc.perform(get("/main"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andReturn();
+  }
+
+  @Test
+  public void testHelloPage() throws Exception {
+        this.mockMvc.perform(get("/hello"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andReturn();
   }
 }
