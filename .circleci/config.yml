@@ -7,44 +7,13 @@ workflows:
   java-ci-cd:
     jobs:
       - build
-      - test
+      - test:
+          requires:
+            - build
       
 
 jobs:
   build:
-    environment:
-      # Configure the JVM and Gradle to avoid OOM errors
-      _JAVA_OPTIONS: "-Xmx3g"
-      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
-    docker:
-      - image: circleci/openjdk:11.0.3-jdk-stretch
-    steps:
-      - checkout
-      - restore_cache:
-          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-      - restore_cache:
-          keys: 
-            - v1-dependencies-{{ checksum "build.gradle" }}
-            - v1-dependencies-
-      - run: gradle dependencies
-          
-      - save_cache:
-          paths:
-            - ~/.gradle/wrapper
-          key: v1-gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
-      - save_cache:
-          paths:
-            - ~/.gradle/caches
-          key: v1-gradle-cache-{{ checksum "build.gradle" }}
-      - run:
-          name: chmod permissions
-          command: sudo chmod +x ./gradlew
-      - run: ./gradlew build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - build
-  test:
     docker:
       - image: circleci/openjdk:11.0.3-jdk-stretch
 
@@ -73,4 +42,15 @@ jobs:
       - run:
           name: chmod permissions
           command: sudo chmod +x ./gradlew
+      - run: ./gradlew clean build
+  test:
+    docker:
+      - image: circleci/openjdk:11.0.3-jdk-stretch
+
+    working_directory: ~/repo
+    environment:
+      JVM_OPTS: -Xmx3200m
+      TERM: dumb
+    steps:
+      - checkout
       - run: ./gradlew test
