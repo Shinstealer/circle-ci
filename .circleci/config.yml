@@ -1,11 +1,10 @@
-version: 2
+version: 2.1
 
 orbs:
   heroku: circleci/heroku@1.0.1
 
 workflows:
-  version: 2
-  workflow:
+  java-ci-cd:
     jobs:
     - build
     - test:
@@ -15,11 +14,9 @@ workflows:
           type: approval
           requires:
             - test
-    - heroku_deploy:
+    - heroku/deploy-via-git:
           requires:
             - start_deploy
-          jobs:
-            - heroku/deploy-via-git
             
 jobs:
   build:
@@ -69,3 +66,5 @@ jobs:
           command: sudo chmod +x ./gradlew
           
       - run: ./gradlew test
+
+  
